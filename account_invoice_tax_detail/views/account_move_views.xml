@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_form_tax_detail" model="ir.ui.view">
+        <field name="name">account.move.form.tax.detail</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+
+            <!--
+                Insertar el cuadro de detalle de impuestos despues del bloque
+                de totales de la factura. En Odoo 16 el bloque de totales
+                esta dentro de un div con class="o_invoice_totals_and_sign"
+                o despues del campo amount_total.
+
+                Usamos el campo invoice_payment_term_id como ancla, que aparece
+                en la zona inferior del formulario, o bien el bloque de totales.
+
+                Alternativa segura: insertar despues del grupo de totales
+                buscando el field name="amount_total".
+            -->
+            <xpath expr="//field[@name='invoice_line_ids']" position="after">
+                <div attrs="{'invisible': [('has_tax_detail', '=', False)]}">
+                    <h4>Detalle de impuestos</h4>
+                    <field name="tax_detail_ids"
+                           nolabel="1"
+                           readonly="1"
+                           widget="one2many_list">
+                        <tree editable="0" create="0" delete="0">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="tax_name" string="Impuesto"/>
+                            <field name="base_amount"
+                                   string="Base"
+                                   widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="tax_amount"
+                                   string="Valor del impuesto"
+                                   widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"/>
+                        </tree>
+                    </field>
+                </div>
+                <field name="has_tax_detail" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

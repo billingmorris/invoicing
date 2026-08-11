@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_tax_detail"
+              inherit_id="account.report_invoice_document">
+
+        <!--
+            Insertar el cuadro "Detalle de impuestos" en el PDF de la factura.
+
+            En Odoo 16 el reporte account.report_invoice_document muestra
+            los totales en un bloque con class="o_totals" o similar.
+
+            Buscamos el bloque de totales (table con los totales de la factura)
+            y agregamos nuestro cuadro despues.
+
+            El objeto del reporte es 'o' (account.move).
+        -->
+
+        <!-- Agregar despues del bloque de totales de la factura -->
+        <xpath expr="//div[hasclass('o_totals')]" position="after">
+            <t t-if="o.has_tax_detail">
+                <div style="margin-top: 16px;">
+                    <table class="table table-sm" style="width: 60%; margin-left: auto;">
+                        <thead>
+                            <tr style="background-color: #f5f5f5;">
+                                <th class="text-left" style="padding: 4px 8px;">
+                                    Detalle de impuestos
+                                </th>
+                                <th class="text-right" style="padding: 4px 8px;">Base</th>
+                                <th class="text-right" style="padding: 4px 8px;">
+                                    Valor del impuesto
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.tax_detail_ids" t-as="td">
+                                <tr>
+                                    <td style="padding: 4px 8px;">
+                                        <span t-esc="td.tax_name"/>
+                                    </td>
+                                    <td class="text-right" style="padding: 4px 8px;">
+                                        <span t-field="td.base_amount"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <td class="text-right" style="padding: 4px 8px;">
+                                        <span t-field="td.tax_amount"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </xpath>
+
+    </template>
+</odoo>
