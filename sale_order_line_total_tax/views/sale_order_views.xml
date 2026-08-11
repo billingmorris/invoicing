@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Herencia de la vista form de sale.order.
+        Agrega la columna "Total con impuestos" en el one2many de lineas de producto.
+
+        En Odoo 16 la vista form de sale.order tiene id:
+            sale.view_order_form
+        El one2many de lineas usa el campo order_line, y dentro del tree
+        la ultima columna visible es price_subtotal.
+
+        XPath: buscamos el field con name="price_subtotal" dentro del tree
+        de order_line y agregamos nuestro field a continuacion.
+    -->
+    <record id="view_order_form_total_with_tax" model="ir.ui.view">
+        <field name="name">sale.order.form.total.with.tax</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Columna en el tree de lineas de orden -->
+            <xpath expr="//field[@name='order_line']//tree//field[@name='price_subtotal']"
+                   position="after">
+                <field name="total_with_tax"
+                       string="Total con impuestos"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       readonly="1"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
