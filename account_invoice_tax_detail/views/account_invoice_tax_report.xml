@@ -4,44 +4,68 @@
               inherit_id="account.report_invoice_document">
 
         <!--
-            XPath sobre el bloque de totales del reporte de factura Odoo 16.
-            El reporte account.report_invoice_document en Odoo 16 Community
-            tiene una tabla de totales identificada por el campo amount_untaxed.
-            Insertamos nuestro cuadro despues de esa tabla de totales.
+            Insertamos el detalle de impuestos despues del bloque de totales.
+            Usamos el mismo contenedor row/col que usa el reporte original
+            para que la tabla quede alineada a la derecha sin desbordarse.
+
+            El bloque de totales en Odoo 16 Community esta dentro de:
+              <div class="row">
+                <div class="col-6"> (notas/condiciones)
+                <div class="col-6"> (totales: subtotal, impuestos, total)
+
+            Nuestra tabla hereda ese mismo patron.
         -->
         <xpath expr="//t[@t-call='account.document_tax_totals']" position="after">
             <t t-if="o.has_tax_detail">
-                <div style="margin-top: 16px; page-break-inside: avoid;">
-                    <table class="table table-sm o_main_table" style="width: 55%; margin-left: auto; font-size: 90%;">
-                        <thead>
-                            <tr style="background-color: #f5f5f5;">
-                                <th class="text-left" style="padding: 4px 8px; border-bottom: 1px solid #dee2e6;">
-                                    Detalle de impuestos
-                                </th>
-                                <th class="text-right" style="padding: 4px 8px; border-bottom: 1px solid #dee2e6;">Base</th>
-                                <th class="text-right" style="padding: 4px 8px; border-bottom: 1px solid #dee2e6;">
-                                    Valor del impuesto
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="o.tax_detail_ids" t-as="td_line">
+                <div class="row" style="margin-top: 8px; page-break-inside: avoid;">
+                    <div class="col-6"/>
+                    <div class="col-6">
+                        <table class="table table-sm"
+                               style="margin-bottom: 0; font-size: 85%;">
+                            <thead>
                                 <tr>
-                                    <td style="padding: 4px 8px;">
-                                        <span t-esc="td_line.tax_name"/>
-                                    </td>
-                                    <td class="text-right" style="padding: 4px 8px;">
-                                        <span t-field="td_line.base_amount"
-                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                    </td>
-                                    <td class="text-right" style="padding: 4px 8px;">
-                                        <span t-field="td_line.tax_amount"
-                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                    </td>
+                                    <th class="text-left"
+                                        style="padding: 3px 6px;
+                                               border-top: 2px solid #dee2e6;
+                                               border-bottom: 1px solid #dee2e6;
+                                               font-weight: bold;">
+                                        Detalle de impuestos
+                                    </th>
+                                    <th class="text-right"
+                                        style="padding: 3px 6px;
+                                               border-top: 2px solid #dee2e6;
+                                               border-bottom: 1px solid #dee2e6;
+                                               font-weight: bold;">
+                                        Base
+                                    </th>
+                                    <th class="text-right"
+                                        style="padding: 3px 6px;
+                                               border-top: 2px solid #dee2e6;
+                                               border-bottom: 1px solid #dee2e6;
+                                               font-weight: bold;">
+                                        Impuesto
+                                    </th>
                                 </tr>
-                            </t>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.tax_detail_ids" t-as="td_line">
+                                    <tr>
+                                        <td style="padding: 3px 6px;">
+                                            <span t-esc="td_line.tax_name"/>
+                                        </td>
+                                        <td class="text-right" style="padding: 3px 6px;">
+                                            <span t-field="td_line.base_amount"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        <td class="text-right" style="padding: 3px 6px;">
+                                            <span t-field="td_line.tax_amount"
+                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </t>
         </xpath>
