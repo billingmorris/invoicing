@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!--
+        Vista de configuración propia del módulo.
+        
+        NO hereda de res.config.settings (frágil en Community v16).
+        En su lugar usa un wizard TransientModel propio con su propia
+        vista form y acción, accesible desde el menú del módulo.
+        
+        Esto evita completamente los problemas de xpath en Settings.
+    -->
+    <record id="view_import_xml_config_form" model="ir.ui.view">
+        <field name="name">import.xml.config.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configuración — Importación Facturas XML"
+                  class="oe_form_configuration">
+
+                <header>
+                    <button name="execute"
+                            string="Guardar"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="cancel"
+                            string="Descartar"
+                            type="object"
+                            class="btn-secondary"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Importación de Facturas XML</h1>
+                        <p class="text-muted">
+                            Configure los valores por defecto para la importación
+                            automática de facturas de proveedor en formato XML.
+                        </p>
+                    </div>
+
+                    <group string="Valores por defecto al importar">
+                        <group>
+                            <field name="xml_import_default_product_id"
+                                   string="Producto por defecto"
+                                   options="{'no_quick_create': True}"
+                                   help="Producto asignado a líneas cuyo código/nombre no se encuentra en Odoo. Configure siempre este campo para evitar líneas sin producto."/>
+
+                            <field name="xml_import_default_account_id"
+                                   string="Cuenta contable por defecto"
+                                   options="{'no_quick_create': True}"
+                                   help="Cuenta de gasto usada si el producto no tiene cuenta configurada."/>
+                        </group>
+                        <group>
+                            <field name="xml_import_default_tax_id"
+                                   string="Impuesto de compra por defecto"
+                                   options="{'no_quick_create': True}"
+                                   help="Impuesto aplicado cuando el % del XML no coincide con ningún impuesto registrado en Odoo."/>
+
+                            <field name="xml_import_journal_id"
+                                   string="Diario de compras"
+                                   options="{'no_quick_create': True}"
+                                   help="Diario preseleccionado en cada importación. Si no se configura, se usa el primer diario de compras disponible."/>
+                        </group>
+                    </group>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle me-2"/>
+                        <strong>Tip:</strong> El <em>producto por defecto</em> y la
+                        <em>cuenta contable</em> son los campos más importantes.
+                        Sin ellos, las líneas no reconocidas quedarán sin producto
+                        y Odoo podría no encontrar la cuenta de gasto para la factura.
+                    </div>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la configuración desde el menú del módulo -->
+    <record id="action_import_xml_config" model="ir.actions.act_window">
+        <field name="name">Configuración Importación XML</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_import_xml_config_form"/>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'import_facturas_xml'}</field>
+    </record>
+
+</odoo>
