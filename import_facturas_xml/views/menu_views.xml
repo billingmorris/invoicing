@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Submenú dentro de Contabilidad → Proveedores -->
+    <menuitem id="menu_import_factura_xml_root"
+              name="Importar Factura XML"
+              parent="account.menu_finance_payables"
+              sequence="99"/>
+
+    <menuitem id="menu_import_factura_xml_wizard"
+              name="Importar XML"
+              parent="menu_import_factura_xml_root"
+              action="import_facturas_xml.action_import_factura_wizard"
+              sequence="10"/>
+
+    <menuitem id="menu_import_factura_xml_log"
+              name="Historial de Importaciones"
+              parent="menu_import_factura_xml_root"
+              action="import_facturas_xml.action_import_factura_log"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════
+         Vista del wizard de importación (multi-paso)
+    ══════════════════════════════════════════════ -->
+    <record id="view_import_factura_wizard_form" model="ir.ui.view">
+        <field name="name">import.factura.wizard.form</field>
+        <field name="model">import.factura.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importar Factura XML de Proveedor">
+
+                <!-- ── PASO 1: Carga del archivo ── -->
+                <div attrs="{'invisible': [('state','!=','upload')]}">
+                    <div class="o_xml_import_header alert alert-info mb-3" role="alert">
+                        <h4 class="alert-heading">
+                            <i class="fa fa-file-code-o me-2"/>
+                            Importar Factura XML de Proveedor
+                        </h4>
+                        <p class="mb-0">
+                            Cargue un archivo XML de factura (formato UBL 2.1 — DIAN Colombia,
+                            CFDI México, o XML genérico). Se creará una factura en estado
+                            <strong>borrador</strong> que podrá revisar antes de confirmar.
+                        </p>
+                    </div>
+
+                    <group>
+                        <group string="Archivo XML">
+                            <field name="xml_file"
+                                   widget="binary"
+                                   string="Seleccionar archivo XML"
+                                   filename="xml_fname"/>
+                            <field name="xml_fname" invisible="1"/>
+                        </group>
+                    </group>
+                </div>
+
+                <!-- ── PASO 2: Revisión y corrección ── -->
+                <div attrs="{'invisible': [('state','!=','review')]}">
+
+                    <!-- Alerta si hay proveedor no encontrado -->
+                    <div attrs="{'invisible': [('partner_found','=',True)]}"
+                         class="alert alert-warning" role="alert">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        <strong>Proveedor no encontrado automáticamente.</strong>
+                        Por favor seleccione el proveedor correcto en el campo a continuación.
+                        <br/><field name="partner_warning" readonly="1" nolabel="1"
+                                    class="text-muted small mt-1"/>
+                    </div>
+
+                    <!-- Alerta de advertencias generales -->
+                    <div attrs="{'invisible': [('has_warnings','=',False)]}"
+                         class="alert alert-warning" role="alert">
+                        <i class="fa fa-info-circle me-2"/>
+                        <strong>Advertencias de importación:</strong>
+                        <pre style="font-size:12px;margin-top:6px;white-space:pre-wrap;"><field name="warnings" readonly="1" nolabel="1"/></pre>
+                    </div>
+
+                    <!-- ── Datos del proveedor ── -->
+                    <group string="Proveedor">
+                        <group>
+                            <field name="xml_supplier_vat"  readonly="1" string="NIT/VAT en XML"/>
+                            <field name="xml_supplier_name" readonly="1" string="Nombre en XML"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                                   required="1"
+                                   string="Proveedor en Odoo"
+                                   help="Seleccione el proveedor. No se crean partners duplicados."/>
+                            <field name="partner_found" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <!-- ── Datos de la factura ── -->
+                    <group string="Datos de la Factura">
+                        <group>
+                            <field name="xml_number"   readonly="1" string="N° Factura XML"/>
+                            <field name="xml_date"     readonly="1" string="Fecha"/>
+                            <field name="xml_date_due" readonly="1" string="Vencimiento"/>
+                            <field name="xml_currency_code" readonly="1" string="Moneda XML"/>
+                        </group>
+                        <group>
+                            <field name="xml_subtotal"  readonly="1" string="Subtotal XML"/>
+                            <field name="xml_tax_total" readonly="1" string="Impuestos XML"/>
+                            <field name="xml_total"     readonly="1" string="Total XML"/>
+                        </group>
+                    </group>
+
+                    <!-- ── Configuración Odoo ── -->
+                    <group string="Configuración en Odoo">
+                        <group>
+                            <field name="journal_id"
+                                   options="{'no_quick_create': True}"
+                                   required="1"/>
+                            <field name="currency_id"
+                                   options="{'no_quick_create': True}"/>
+                        </group>
+                    </group>
+
+                    <!-- ── Líneas ── -->
+                    <notebook>
+                        <page string="Líneas de Factura">
+                            <field name="line_ids" nolabel="1">
+                                <tree editable="bottom" decoration-warning="used_default_product == True">
+                                    <field name="xml_product_code" string="Cód. XML" optional="show"/>
+                                    <field name="xml_description"  string="Descripción XML" readonly="1"/>
+                                    <field name="xml_qty"          string="Cant."            readonly="1"/>
+                                    <field name="xml_unit_price"   string="P. Unit. XML"     readonly="1"/>
+                                    <field name="xml_tax_percent"  string="% IVA XML"        readonly="1" optional="show"/>
+                                    <field name="xml_subtotal"     string="Subtotal XML"      readonly="1"/>
+                                    <field name="product_id"
+                                           string="Producto Odoo"
+                                           options="{'no_quick_create': True, 'no_create_edit': True}"
+                                           help="Si aparece en naranja, se está usando el producto por defecto."/>
+                                    <field name="tax_ids"          string="Impuestos" widget="many2many_tags"/>
+                                    <field name="used_default_product" optional="hide" string="¿Defecto?"/>
+                                </tree>
+                            </field>
+                            <div class="text-muted small mt-2">
+                                <i class="fa fa-info-circle me-1"/>
+                                Las filas en <span style="color:#e67e22">naranja</span> usan
+                                el <strong>producto por defecto</strong> (el producto del XML no se
+                                encontró en Odoo). Puede cambiarlo manualmente antes de crear la factura.
+                            </div>
+                        </page>
+                        <page string="Notas del XML" attrs="{'invisible': [('xml_notes','=',False)]}">
+                            <field name="xml_notes" readonly="1" nolabel="1"/>
+                        </page>
+                    </notebook>
+
+                </div>
+
+                <!-- ── PASO 3: Resultado ── -->
+                <div attrs="{'invisible': [('state','!=','done')]}">
+                    <div class="alert alert-success" role="alert">
+                        <i class="fa fa-check-circle me-2"/>
+                        <strong>¡Factura creada exitosamente!</strong><br/>
+                        La factura se creó en estado <strong>Borrador</strong>.
+                        Puede revisarla y confirmarla cuando esté listo.
+                    </div>
+                    <group>
+                        <field name="invoice_id" readonly="1" string="Factura creada"/>
+                    </group>
+                </div>
+
+                <!-- ── Botones ── -->
+                <footer>
+
+                    <!-- Paso 1 -->
+                    <button attrs="{'invisible': [('state','!=','upload')]}"
+                            name="action_parse_xml"
+                            string="Analizar XML"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-search"/>
+                    <button attrs="{'invisible': [('state','!=','upload')]}"
+                            string="Cancelar" class="btn-secondary" special="cancel"/>
+
+                    <!-- Paso 2 -->
+                    <button attrs="{'invisible': [('state','!=','review')]}"
+                            name="action_create_invoice"
+                            string="Crear Factura Borrador"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-file-text-o"
+                            confirm="¿Confirma la creación de la factura borrador con los datos mostrados?"/>
+                    <button attrs="{'invisible': [('state','!=','review')]}"
+                            string="Cancelar" class="btn-secondary" special="cancel"/>
+
+                    <!-- Paso 3 -->
+                    <button attrs="{'invisible': [('state','!=','done')]}"
+                            name="action_open_invoice"
+                            string="Ver Factura"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-external-link"/>
+                    <button attrs="{'invisible': [('state','!=','done')]}"
+                            string="Cerrar" class="btn-secondary" special="cancel"/>
+
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Acción para abrir el wizard ── -->
+    <record id="action_import_factura_wizard" model="ir.actions.act_window">
+        <field name="name">Importar Factura XML</field>
+        <field name="res_model">import.factura.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_factura_wizard_form"/>
+    </record>
+
+</odoo>
