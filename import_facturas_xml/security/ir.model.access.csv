@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_import_factura_log_user,import.factura.log.user,model_import_factura_log,account.group_account_user,1,1,1,0
-access_import_factura_log_manager,import.factura.log.manager,model_import_factura_log,account.group_account_manager,1,1,1,1
-access_import_factura_wizard_user,import.factura.wizard.user,model_import_factura_wizard,account.group_account_user,1,1,1,1
-access_import_factura_wizard_line_user,import.factura.wizard.line.user,model_import_factura_wizard_line,account.group_account_user,1,1,1,1
