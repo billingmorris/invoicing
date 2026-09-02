@@ -19,4 +19,11 @@
               action="import_facturas_xml.action_import_factura_log"
               sequence="20"/>
 
+    <menuitem id="menu_import_factura_xml_config"
+              name="Configuración"
+              parent="menu_import_factura_xml_root"
+              action="import_facturas_xml.action_import_xml_config"
+              sequence="30"
+              groups="base.group_system"/>
+
 </odoo>
