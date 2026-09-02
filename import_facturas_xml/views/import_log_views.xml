@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════
+         Tree: lista de importaciones
+    ══════════════════════════════════════════════ -->
+    <record id="view_import_factura_log_tree" model="ir.ui.view">
+        <field name="name">import.factura.log.tree</field>
+        <field name="model">import.factura.log</field>
+        <field name="arch" type="xml">
+            <tree string="Historial de Importaciones XML"
+                  decoration-success="state == 'ok'"
+                  decoration-warning="state == 'warning'"
+                  decoration-danger="state == 'error'">
+                <field name="create_date" string="Fecha importación"/>
+                <field name="filename"    string="Archivo"/>
+                <field name="xml_number"  string="N° Factura"/>
+                <field name="xml_date"    string="Fecha Factura"/>
+                <field name="xml_supplier_vat"  string="NIT/VAT"/>
+                <field name="xml_supplier_name" string="Proveedor XML"/>
+                <field name="partner_id"  string="Proveedor Odoo"/>
+                <field name="xml_total"   string="Total" sum="Total"/>
+                <field name="xml_currency" string="Moneda"/>
+                <field name="state"       string="Estado"
+                       widget="badge"
+                       decoration-success="state == 'ok'"
+                       decoration-warning="state == 'warning'"
+                       decoration-danger="state == 'error'"/>
+                <field name="invoice_id"  string="Factura"/>
+                <field name="user_id"     string="Importado por" optional="show"/>
+                <button name="action_open_invoice"
+                        type="object"
+                        string="Ver Factura"
+                        icon="fa-external-link"
+                        attrs="{'invisible': [('invoice_id','=',False)]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════
+         Form: detalle de una importación
+    ══════════════════════════════════════════════ -->
+    <record id="view_import_factura_log_form" model="ir.ui.view">
+        <field name="name">import.factura.log.form</field>
+        <field name="model">import.factura.log</field>
+        <field name="arch" type="xml">
+            <form string="Detalle de Importación XML" create="false" edit="false">
+
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="ok,warning,error"/>
+                    <button name="action_open_invoice"
+                            type="object"
+                            string="Abrir Factura"
+                            class="btn-primary"
+                            attrs="{'invisible': [('invoice_id','=',False)]}"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="filename" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group string="Datos del XML">
+                            <field name="xml_number"        string="N° Factura XML"/>
+                            <field name="xml_date"          string="Fecha Factura"/>
+                            <field name="xml_supplier_vat"  string="NIT/VAT Proveedor"/>
+                            <field name="xml_supplier_name" string="Nombre Proveedor XML"/>
+                            <field name="xml_total"         string="Total XML"/>
+                            <field name="xml_currency"      string="Moneda XML"/>
+                        </group>
+                        <group string="Resultado en Odoo">
+                            <field name="partner_id"  string="Proveedor Odoo"/>
+                            <field name="invoice_id"  string="Factura creada"/>
+                            <field name="user_id"     string="Importado por"/>
+                            <field name="create_date" string="Fecha importación"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Mensajes / Advertencias"
+                              attrs="{'invisible': [('message','=',False)]}">
+                            <field name="message" readonly="1" nolabel="1"/>
+                        </page>
+                        <page string="XML Original">
+                            <field name="xml_raw" readonly="1" nolabel="1" widget="text"
+                                   style="font-family:monospace;font-size:12px;"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════
+         Search
+    ══════════════════════════════════════════════ -->
+    <record id="view_import_factura_log_search" model="ir.ui.view">
+        <field name="name">import.factura.log.search</field>
+        <field name="model">import.factura.log</field>
+        <field name="arch" type="xml">
+            <search string="Buscar importaciones">
+                <field name="filename"         string="Archivo"/>
+                <field name="xml_number"       string="N° Factura"/>
+                <field name="xml_supplier_name" string="Proveedor XML"/>
+                <field name="xml_supplier_vat"  string="NIT/VAT"/>
+                <field name="partner_id"       string="Proveedor Odoo"/>
+                <field name="invoice_id"       string="Factura"/>
+                <separator/>
+                <filter string="Importados OK"  name="ok"      domain="[('state','=','ok')]"/>
+                <filter string="Con advertencias" name="warn"  domain="[('state','=','warning')]"/>
+                <filter string="Con error"      name="error"   domain="[('state','=','error')]"/>
+                <separator/>
+                <filter string="Hoy"  name="today"
+                        domain="[('create_date','&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Proveedor"  name="group_partner"
+                            context="{'group_by':'partner_id'}"/>
+                    <filter string="Estado"     name="group_state"
+                            context="{'group_by':'state'}"/>
+                    <filter string="Mes"        name="group_month"
+                            context="{'group_by':'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción de ventana para el log -->
+    <record id="action_import_factura_log" model="ir.actions.act_window">
+        <field name="name">Historial de Importaciones XML</field>
+        <field name="res_model">import.factura.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_import_factura_log_search"/>
+    </record>
+
+</odoo>
